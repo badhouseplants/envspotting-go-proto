@@ -4,8 +4,8 @@ package authentication
 
 import (
 	context "context"
-	common "github.com/allanger/gitlab-environment-aggregator/models/common"
-	accounts "github.com/allanger/gitlab-environment-aggregator/models/users/accounts"
+	common "github.com/badhouseplants/envspotting-go-proto/models/common"
+	accounts "github.com/badhouseplants/envspotting-go-proto/models/users/accounts"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"

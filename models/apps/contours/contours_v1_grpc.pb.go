@@ -4,7 +4,7 @@ package contours
 
 import (
 	context "context"
-	common "github.com/allanger/gitlab-environment-aggregator/models/common"
+	common "github.com/badhouseplants/envspotting-go-proto/models/common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
