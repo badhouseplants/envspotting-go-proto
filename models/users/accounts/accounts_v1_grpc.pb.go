@@ -4,6 +4,7 @@ package accounts
 
 import (
 	context "context"
+	applications "github.com/badhouseplants/envspotting-go-proto/models/apps/applications"
 	common "github.com/badhouseplants/envspotting-go-proto/models/common"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -22,12 +23,14 @@ type AccountsClient interface {
 	/// Use to create a Account
 	Create(ctx context.Context, in *AccountCreds, opts ...grpc.CallOption) (*AccountInfo, error)
 	/// Use to update a Account
-	UpdateUsername(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error)
+	UpdateUser(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error)
 	UpdatePassword(ctx context.Context, in *PasswordUpdate, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	/// Account to get a Account by ID
 	Get(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountInfo, error)
 	/// List Accounts
 	List(ctx context.Context, in *AccountName, opts ...grpc.CallOption) (Accounts_ListClient, error)
+	/// Add an app to the user app list
+	AddAppToUser(ctx context.Context, in *applications.AppId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 }
 
 type accountsClient struct {
@@ -47,9 +50,9 @@ func (c *accountsClient) Create(ctx context.Context, in *AccountCreds, opts ...g
 	return out, nil
 }
 
-func (c *accountsClient) UpdateUsername(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error) {
+func (c *accountsClient) UpdateUser(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error) {
 	out := new(AccountInfo)
-	err := c.cc.Invoke(ctx, "/users.Accounts/UpdateUsername", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/users.Accounts/UpdateUser", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -106,6 +109,15 @@ func (x *accountsListClient) Recv() (*AccountInfo, error) {
 	return m, nil
 }
 
+func (c *accountsClient) AddAppToUser(ctx context.Context, in *applications.AppId, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
+	out := new(common.EmptyMessage)
+	err := c.cc.Invoke(ctx, "/users.Accounts/AddAppToUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AccountsServer is the server API for Accounts service.
 // All implementations must embed UnimplementedAccountsServer
 // for forward compatibility
@@ -113,12 +125,14 @@ type AccountsServer interface {
 	/// Use to create a Account
 	Create(context.Context, *AccountCreds) (*AccountInfo, error)
 	/// Use to update a Account
-	UpdateUsername(context.Context, *AccountInfo) (*AccountInfo, error)
+	UpdateUser(context.Context, *AccountInfo) (*AccountInfo, error)
 	UpdatePassword(context.Context, *PasswordUpdate) (*common.EmptyMessage, error)
 	/// Account to get a Account by ID
 	Get(context.Context, *AccountId) (*AccountInfo, error)
 	/// List Accounts
 	List(*AccountName, Accounts_ListServer) error
+	/// Add an app to the user app list
+	AddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error)
 	mustEmbedUnimplementedAccountsServer()
 }
 
@@ -129,8 +143,8 @@ type UnimplementedAccountsServer struct {
 func (UnimplementedAccountsServer) Create(context.Context, *AccountCreds) (*AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedAccountsServer) UpdateUsername(context.Context, *AccountInfo) (*AccountInfo, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateUsername not implemented")
+func (UnimplementedAccountsServer) UpdateUser(context.Context, *AccountInfo) (*AccountInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedAccountsServer) UpdatePassword(context.Context, *PasswordUpdate) (*common.EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
@@ -140,6 +154,9 @@ func (UnimplementedAccountsServer) Get(context.Context, *AccountId) (*AccountInf
 }
 func (UnimplementedAccountsServer) List(*AccountName, Accounts_ListServer) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedAccountsServer) AddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddAppToUser not implemented")
 }
 func (UnimplementedAccountsServer) mustEmbedUnimplementedAccountsServer() {}
 
@@ -172,20 +189,20 @@ func _Accounts_Create_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Accounts_UpdateUsername_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Accounts_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AccountInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AccountsServer).UpdateUsername(ctx, in)
+		return srv.(AccountsServer).UpdateUser(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/users.Accounts/UpdateUsername",
+		FullMethod: "/users.Accounts/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountsServer).UpdateUsername(ctx, req.(*AccountInfo))
+		return srv.(AccountsServer).UpdateUser(ctx, req.(*AccountInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -247,6 +264,24 @@ func (x *accountsListServer) Send(m *AccountInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Accounts_AddAppToUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(applications.AppId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountsServer).AddAppToUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Accounts/AddAppToUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountsServer).AddAppToUser(ctx, req.(*applications.AppId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Accounts_ServiceDesc is the grpc.ServiceDesc for Accounts service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -259,8 +294,8 @@ var Accounts_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Accounts_Create_Handler,
 		},
 		{
-			MethodName: "UpdateUsername",
-			Handler:    _Accounts_UpdateUsername_Handler,
+			MethodName: "UpdateUser",
+			Handler:    _Accounts_UpdateUser_Handler,
 		},
 		{
 			MethodName: "UpdatePassword",
@@ -269,6 +304,10 @@ var Accounts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Accounts_Get_Handler,
+		},
+		{
+			MethodName: "AddAppToUser",
+			Handler:    _Accounts_AddAppToUser_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
