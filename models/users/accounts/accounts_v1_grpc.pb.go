@@ -28,7 +28,7 @@ type AccountsClient interface {
 	/// Account to get a Account by ID
 	Get(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountInfo, error)
 	/// List Accounts
-	List(ctx context.Context, in *AccountName, opts ...grpc.CallOption) (Accounts_ListClient, error)
+	List(ctx context.Context, in *AccountsListOptions, opts ...grpc.CallOption) (Accounts_ListClient, error)
 	/// Add an app to the user app list
 	AddAppToUser(ctx context.Context, in *applications.AppId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 }
@@ -77,7 +77,7 @@ func (c *accountsClient) Get(ctx context.Context, in *AccountId, opts ...grpc.Ca
 	return out, nil
 }
 
-func (c *accountsClient) List(ctx context.Context, in *AccountName, opts ...grpc.CallOption) (Accounts_ListClient, error) {
+func (c *accountsClient) List(ctx context.Context, in *AccountsListOptions, opts ...grpc.CallOption) (Accounts_ListClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Accounts_ServiceDesc.Streams[0], "/users.Accounts/List", opts...)
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ type AccountsServer interface {
 	/// Account to get a Account by ID
 	Get(context.Context, *AccountId) (*AccountInfo, error)
 	/// List Accounts
-	List(*AccountName, Accounts_ListServer) error
+	List(*AccountsListOptions, Accounts_ListServer) error
 	/// Add an app to the user app list
 	AddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error)
 	mustEmbedUnimplementedAccountsServer()
@@ -152,7 +152,7 @@ func (UnimplementedAccountsServer) UpdatePassword(context.Context, *PasswordUpda
 func (UnimplementedAccountsServer) Get(context.Context, *AccountId) (*AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedAccountsServer) List(*AccountName, Accounts_ListServer) error {
+func (UnimplementedAccountsServer) List(*AccountsListOptions, Accounts_ListServer) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedAccountsServer) AddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error) {
@@ -244,7 +244,7 @@ func _Accounts_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 }
 
 func _Accounts_List_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(AccountName)
+	m := new(AccountsListOptions)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}

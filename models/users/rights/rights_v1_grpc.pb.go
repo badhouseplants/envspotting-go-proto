@@ -23,7 +23,7 @@ type RightsClient interface {
 	Update(ctx context.Context, in *AccessRuleIdAndRight, opts ...grpc.CallOption) (*AccessRuleIdAndRight, error)
 	Delete(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	Get(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*AccessRuleInfo, error)
-	List(ctx context.Context, in *ListOptions, opts ...grpc.CallOption) (Rights_ListClient, error)
+	List(ctx context.Context, in *RightsListOptions, opts ...grpc.CallOption) (Rights_ListClient, error)
 }
 
 type rightsClient struct {
@@ -70,7 +70,7 @@ func (c *rightsClient) Get(ctx context.Context, in *AccessRuleId, opts ...grpc.C
 	return out, nil
 }
 
-func (c *rightsClient) List(ctx context.Context, in *ListOptions, opts ...grpc.CallOption) (Rights_ListClient, error) {
+func (c *rightsClient) List(ctx context.Context, in *RightsListOptions, opts ...grpc.CallOption) (Rights_ListClient, error) {
 	stream, err := c.cc.NewStream(ctx, &Rights_ServiceDesc.Streams[0], "/users.Rights/List", opts...)
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ type RightsServer interface {
 	Update(context.Context, *AccessRuleIdAndRight) (*AccessRuleIdAndRight, error)
 	Delete(context.Context, *AccessRuleId) (*common.EmptyMessage, error)
 	Get(context.Context, *AccessRuleId) (*AccessRuleInfo, error)
-	List(*ListOptions, Rights_ListServer) error
+	List(*RightsListOptions, Rights_ListServer) error
 	mustEmbedUnimplementedRightsServer()
 }
 
@@ -130,7 +130,7 @@ func (UnimplementedRightsServer) Delete(context.Context, *AccessRuleId) (*common
 func (UnimplementedRightsServer) Get(context.Context, *AccessRuleId) (*AccessRuleInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
 }
-func (UnimplementedRightsServer) List(*ListOptions, Rights_ListServer) error {
+func (UnimplementedRightsServer) List(*RightsListOptions, Rights_ListServer) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedRightsServer) mustEmbedUnimplementedRightsServer() {}
@@ -219,7 +219,7 @@ func _Rights_Get_Handler(srv interface{}, ctx context.Context, dec func(interfac
 }
 
 func _Rights_List_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListOptions)
+	m := new(RightsListOptions)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
