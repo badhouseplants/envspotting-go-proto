@@ -5,6 +5,7 @@ package authorization
 import (
 	context "context"
 	common "github.com/badhouseplants/envspotting-go-proto/models/common"
+	accounts "github.com/badhouseplants/envspotting-go-proto/models/users/accounts"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -21,6 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthorizationClient interface {
 	/// Use to refresh access token
 	RefreshToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error)
+	/// Use to parse user ID from token
+	ParseIdFromToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*accounts.AccountId, error)
 }
 
 type authorizationClient struct {
@@ -40,12 +43,23 @@ func (c *authorizationClient) RefreshToken(ctx context.Context, in *common.Empty
 	return out, nil
 }
 
+func (c *authorizationClient) ParseIdFromToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*accounts.AccountId, error) {
+	out := new(accounts.AccountId)
+	err := c.cc.Invoke(ctx, "/users.Authorization/ParseIdFromToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthorizationServer is the server API for Authorization service.
 // All implementations must embed UnimplementedAuthorizationServer
 // for forward compatibility
 type AuthorizationServer interface {
 	/// Use to refresh access token
 	RefreshToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error)
+	/// Use to parse user ID from token
+	ParseIdFromToken(context.Context, *common.EmptyMessage) (*accounts.AccountId, error)
 	mustEmbedUnimplementedAuthorizationServer()
 }
 
@@ -55,6 +69,9 @@ type UnimplementedAuthorizationServer struct {
 
 func (UnimplementedAuthorizationServer) RefreshToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
+}
+func (UnimplementedAuthorizationServer) ParseIdFromToken(context.Context, *common.EmptyMessage) (*accounts.AccountId, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ParseIdFromToken not implemented")
 }
 func (UnimplementedAuthorizationServer) mustEmbedUnimplementedAuthorizationServer() {}
 
@@ -87,6 +104,24 @@ func _Authorization_RefreshToken_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Authorization_ParseIdFromToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.EmptyMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServer).ParseIdFromToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Authorization/ParseIdFromToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServer).ParseIdFromToken(ctx, req.(*common.EmptyMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Authorization_ServiceDesc is the grpc.ServiceDesc for Authorization service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -97,6 +132,10 @@ var Authorization_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshToken",
 			Handler:    _Authorization_RefreshToken_Handler,
+		},
+		{
+			MethodName: "ParseIdFromToken",
+			Handler:    _Authorization_ParseIdFromToken_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
