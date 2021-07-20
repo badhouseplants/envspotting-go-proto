@@ -19,6 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RightsClient interface {
+	Init(ctx context.Context, in *AccessRuleWithoutId, opts ...grpc.CallOption) (*AccessRuleInfo, error)
 	Create(ctx context.Context, in *AccessRuleWithoutId, opts ...grpc.CallOption) (*AccessRuleInfo, error)
 	Update(ctx context.Context, in *AccessRuleIdAndRight, opts ...grpc.CallOption) (*AccessRuleIdAndRight, error)
 	Delete(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
@@ -32,6 +33,15 @@ type rightsClient struct {
 
 func NewRightsClient(cc grpc.ClientConnInterface) RightsClient {
 	return &rightsClient{cc}
+}
+
+func (c *rightsClient) Init(ctx context.Context, in *AccessRuleWithoutId, opts ...grpc.CallOption) (*AccessRuleInfo, error) {
+	out := new(AccessRuleInfo)
+	err := c.cc.Invoke(ctx, "/users.Rights/Init", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *rightsClient) Create(ctx context.Context, in *AccessRuleWithoutId, opts ...grpc.CallOption) (*AccessRuleInfo, error) {
@@ -106,6 +116,7 @@ func (x *rightsListClient) Recv() (*AccessRuleInfo, error) {
 // All implementations must embed UnimplementedRightsServer
 // for forward compatibility
 type RightsServer interface {
+	Init(context.Context, *AccessRuleWithoutId) (*AccessRuleInfo, error)
 	Create(context.Context, *AccessRuleWithoutId) (*AccessRuleInfo, error)
 	Update(context.Context, *AccessRuleIdAndRight) (*AccessRuleIdAndRight, error)
 	Delete(context.Context, *AccessRuleId) (*common.EmptyMessage, error)
@@ -118,6 +129,9 @@ type RightsServer interface {
 type UnimplementedRightsServer struct {
 }
 
+func (UnimplementedRightsServer) Init(context.Context, *AccessRuleWithoutId) (*AccessRuleInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Init not implemented")
+}
 func (UnimplementedRightsServer) Create(context.Context, *AccessRuleWithoutId) (*AccessRuleInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
@@ -144,6 +158,24 @@ type UnsafeRightsServer interface {
 
 func RegisterRightsServer(s grpc.ServiceRegistrar, srv RightsServer) {
 	s.RegisterService(&Rights_ServiceDesc, srv)
+}
+
+func _Rights_Init_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessRuleWithoutId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RightsServer).Init(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Rights/Init",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RightsServer).Init(ctx, req.(*AccessRuleWithoutId))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Rights_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -246,6 +278,10 @@ var Rights_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "users.Rights",
 	HandlerType: (*RightsServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Init",
+			Handler:    _Rights_Init_Handler,
+		},
 		{
 			MethodName: "Create",
 			Handler:    _Rights_Create_Handler,
