@@ -25,8 +25,10 @@ type AccountsClient interface {
 	/// Use to update a Account
 	UpdateUser(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error)
 	UpdatePassword(ctx context.Context, in *PasswordUpdate, opts ...grpc.CallOption) (*common.EmptyMessage, error)
-	/// Account to get a Account by ID
+	/// Use to get a Account by ID
 	Get(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountInfo, error)
+	/// Use to get yourself by ID
+	SelfGet(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*FullAccountInfo, error)
 	/// List Accounts
 	List(ctx context.Context, in *AccountsListOptions, opts ...grpc.CallOption) (Accounts_ListClient, error)
 	/// Add an app to the user app list
@@ -71,6 +73,15 @@ func (c *accountsClient) UpdatePassword(ctx context.Context, in *PasswordUpdate,
 func (c *accountsClient) Get(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountInfo, error) {
 	out := new(AccountInfo)
 	err := c.cc.Invoke(ctx, "/users.Accounts/Get", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *accountsClient) SelfGet(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*FullAccountInfo, error) {
+	out := new(FullAccountInfo)
+	err := c.cc.Invoke(ctx, "/users.Accounts/SelfGet", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -127,8 +138,10 @@ type AccountsServer interface {
 	/// Use to update a Account
 	UpdateUser(context.Context, *AccountInfo) (*AccountInfo, error)
 	UpdatePassword(context.Context, *PasswordUpdate) (*common.EmptyMessage, error)
-	/// Account to get a Account by ID
+	/// Use to get a Account by ID
 	Get(context.Context, *AccountId) (*AccountInfo, error)
+	/// Use to get yourself by ID
+	SelfGet(context.Context, *AccountId) (*FullAccountInfo, error)
 	/// List Accounts
 	List(*AccountsListOptions, Accounts_ListServer) error
 	/// Add an app to the user app list
@@ -151,6 +164,9 @@ func (UnimplementedAccountsServer) UpdatePassword(context.Context, *PasswordUpda
 }
 func (UnimplementedAccountsServer) Get(context.Context, *AccountId) (*AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (UnimplementedAccountsServer) SelfGet(context.Context, *AccountId) (*FullAccountInfo, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SelfGet not implemented")
 }
 func (UnimplementedAccountsServer) List(*AccountsListOptions, Accounts_ListServer) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
@@ -243,6 +259,24 @@ func _Accounts_Get_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Accounts_SelfGet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountsServer).SelfGet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Accounts/SelfGet",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountsServer).SelfGet(ctx, req.(*AccountId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Accounts_List_Handler(srv interface{}, stream grpc.ServerStream) error {
 	m := new(AccountsListOptions)
 	if err := stream.RecvMsg(m); err != nil {
@@ -304,6 +338,10 @@ var Accounts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Accounts_Get_Handler,
+		},
+		{
+			MethodName: "SelfGet",
+			Handler:    _Accounts_SelfGet_Handler,
 		},
 		{
 			MethodName: "AddAppToUser",
