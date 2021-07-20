@@ -25,6 +25,7 @@ type RightsClient interface {
 	Delete(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	Get(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*AccessRuleInfo, error)
 	List(ctx context.Context, in *RightsListOptions, opts ...grpc.CallOption) (Rights_ListClient, error)
+	CheckRight(ctx context.Context, in *AccessRightRequest, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 }
 
 type rightsClient struct {
@@ -112,6 +113,15 @@ func (x *rightsListClient) Recv() (*AccessRuleInfo, error) {
 	return m, nil
 }
 
+func (c *rightsClient) CheckRight(ctx context.Context, in *AccessRightRequest, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
+	out := new(common.EmptyMessage)
+	err := c.cc.Invoke(ctx, "/users.Rights/CheckRight", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RightsServer is the server API for Rights service.
 // All implementations must embed UnimplementedRightsServer
 // for forward compatibility
@@ -122,6 +132,7 @@ type RightsServer interface {
 	Delete(context.Context, *AccessRuleId) (*common.EmptyMessage, error)
 	Get(context.Context, *AccessRuleId) (*AccessRuleInfo, error)
 	List(*RightsListOptions, Rights_ListServer) error
+	CheckRight(context.Context, *AccessRightRequest) (*common.EmptyMessage, error)
 	mustEmbedUnimplementedRightsServer()
 }
 
@@ -146,6 +157,9 @@ func (UnimplementedRightsServer) Get(context.Context, *AccessRuleId) (*AccessRul
 }
 func (UnimplementedRightsServer) List(*RightsListOptions, Rights_ListServer) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedRightsServer) CheckRight(context.Context, *AccessRightRequest) (*common.EmptyMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckRight not implemented")
 }
 func (UnimplementedRightsServer) mustEmbedUnimplementedRightsServer() {}
 
@@ -271,6 +285,24 @@ func (x *rightsListServer) Send(m *AccessRuleInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Rights_CheckRight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessRightRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RightsServer).CheckRight(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Rights/CheckRight",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RightsServer).CheckRight(ctx, req.(*AccessRightRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Rights_ServiceDesc is the grpc.ServiceDesc for Rights service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -297,6 +329,10 @@ var Rights_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Get",
 			Handler:    _Rights_Get_Handler,
+		},
+		{
+			MethodName: "CheckRight",
+			Handler:    _Rights_CheckRight_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
