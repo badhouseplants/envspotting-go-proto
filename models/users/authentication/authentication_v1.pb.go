@@ -9,8 +9,8 @@
 package authentication
 
 import (
-	accounts "github.com/allanger/gitlab-environment-aggregator/models/users/accounts"
 	common "github.com/badhouseplants/envspotting-go-proto/models/common"
+	accounts "github.com/badhouseplants/envspotting-go-proto/models/users/accounts"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
