@@ -22,6 +22,8 @@ const _ = grpc.SupportPackageIsVersion7
 type AuthorizationClient interface {
 	/// Use to refresh access token
 	RefreshToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error)
+	/// Use To validate jwt token
+	ValidateToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	/// Use to parse user ID from token
 	ParseIdFromToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*accounts.AccountId, error)
 }
@@ -43,6 +45,15 @@ func (c *authorizationClient) RefreshToken(ctx context.Context, in *common.Empty
 	return out, nil
 }
 
+func (c *authorizationClient) ValidateToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
+	out := new(common.EmptyMessage)
+	err := c.cc.Invoke(ctx, "/users.Authorization/ValidateToken", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *authorizationClient) ParseIdFromToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*accounts.AccountId, error) {
 	out := new(accounts.AccountId)
 	err := c.cc.Invoke(ctx, "/users.Authorization/ParseIdFromToken", in, out, opts...)
@@ -58,6 +69,8 @@ func (c *authorizationClient) ParseIdFromToken(ctx context.Context, in *common.E
 type AuthorizationServer interface {
 	/// Use to refresh access token
 	RefreshToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error)
+	/// Use To validate jwt token
+	ValidateToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error)
 	/// Use to parse user ID from token
 	ParseIdFromToken(context.Context, *common.EmptyMessage) (*accounts.AccountId, error)
 	mustEmbedUnimplementedAuthorizationServer()
@@ -69,6 +82,9 @@ type UnimplementedAuthorizationServer struct {
 
 func (UnimplementedAuthorizationServer) RefreshToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
+}
+func (UnimplementedAuthorizationServer) ValidateToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateToken not implemented")
 }
 func (UnimplementedAuthorizationServer) ParseIdFromToken(context.Context, *common.EmptyMessage) (*accounts.AccountId, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ParseIdFromToken not implemented")
@@ -104,6 +120,24 @@ func _Authorization_RefreshToken_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Authorization_ValidateToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(common.EmptyMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthorizationServer).ValidateToken(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Authorization/ValidateToken",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthorizationServer).ValidateToken(ctx, req.(*common.EmptyMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Authorization_ParseIdFromToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(common.EmptyMessage)
 	if err := dec(in); err != nil {
@@ -132,6 +166,10 @@ var Authorization_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshToken",
 			Handler:    _Authorization_RefreshToken_Handler,
+		},
+		{
+			MethodName: "ValidateToken",
+			Handler:    _Authorization_ValidateToken_Handler,
 		},
 		{
 			MethodName: "ParseIdFromToken",
