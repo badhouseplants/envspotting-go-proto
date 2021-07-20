@@ -23,7 +23,7 @@ type AccountsClient interface {
 	/// Use to create a Account
 	Create(ctx context.Context, in *AccountCreds, opts ...grpc.CallOption) (*AccountInfo, error)
 	/// Use to update a Account
-	UpdateUser(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error)
+	UpdateUser(ctx context.Context, in *FullAccountInfo, opts ...grpc.CallOption) (*AccountInfo, error)
 	UpdatePassword(ctx context.Context, in *PasswordUpdate, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	/// Use to get a Account by ID
 	Get(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountInfo, error)
@@ -52,7 +52,7 @@ func (c *accountsClient) Create(ctx context.Context, in *AccountCreds, opts ...g
 	return out, nil
 }
 
-func (c *accountsClient) UpdateUser(ctx context.Context, in *AccountInfo, opts ...grpc.CallOption) (*AccountInfo, error) {
+func (c *accountsClient) UpdateUser(ctx context.Context, in *FullAccountInfo, opts ...grpc.CallOption) (*AccountInfo, error) {
 	out := new(AccountInfo)
 	err := c.cc.Invoke(ctx, "/users.Accounts/UpdateUser", in, out, opts...)
 	if err != nil {
@@ -136,7 +136,7 @@ type AccountsServer interface {
 	/// Use to create a Account
 	Create(context.Context, *AccountCreds) (*AccountInfo, error)
 	/// Use to update a Account
-	UpdateUser(context.Context, *AccountInfo) (*AccountInfo, error)
+	UpdateUser(context.Context, *FullAccountInfo) (*AccountInfo, error)
 	UpdatePassword(context.Context, *PasswordUpdate) (*common.EmptyMessage, error)
 	/// Use to get a Account by ID
 	Get(context.Context, *AccountId) (*AccountInfo, error)
@@ -156,7 +156,7 @@ type UnimplementedAccountsServer struct {
 func (UnimplementedAccountsServer) Create(context.Context, *AccountCreds) (*AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedAccountsServer) UpdateUser(context.Context, *AccountInfo) (*AccountInfo, error) {
+func (UnimplementedAccountsServer) UpdateUser(context.Context, *FullAccountInfo) (*AccountInfo, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateUser not implemented")
 }
 func (UnimplementedAccountsServer) UpdatePassword(context.Context, *PasswordUpdate) (*common.EmptyMessage, error) {
@@ -206,7 +206,7 @@ func _Accounts_Create_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 func _Accounts_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AccountInfo)
+	in := new(FullAccountInfo)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -218,7 +218,7 @@ func _Accounts_UpdateUser_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/users.Accounts/UpdateUser",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AccountsServer).UpdateUser(ctx, req.(*AccountInfo))
+		return srv.(AccountsServer).UpdateUser(ctx, req.(*FullAccountInfo))
 	}
 	return interceptor(ctx, in, info, handler)
 }
