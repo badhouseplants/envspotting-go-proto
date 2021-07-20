@@ -357,3 +357,91 @@ var Accounts_ServiceDesc = grpc.ServiceDesc{
 	},
 	Metadata: "users/accounts/accounts_v1.proto",
 }
+
+// TokensClient is the client API for Tokens service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type TokensClient interface {
+	// Use to get gitlab token
+	GetGitlabTokenByAccountID(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*GitlabToken, error)
+}
+
+type tokensClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewTokensClient(cc grpc.ClientConnInterface) TokensClient {
+	return &tokensClient{cc}
+}
+
+func (c *tokensClient) GetGitlabTokenByAccountID(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*GitlabToken, error) {
+	out := new(GitlabToken)
+	err := c.cc.Invoke(ctx, "/users.Tokens/GetGitlabTokenByAccountID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// TokensServer is the server API for Tokens service.
+// All implementations must embed UnimplementedTokensServer
+// for forward compatibility
+type TokensServer interface {
+	// Use to get gitlab token
+	GetGitlabTokenByAccountID(context.Context, *AccountId) (*GitlabToken, error)
+	mustEmbedUnimplementedTokensServer()
+}
+
+// UnimplementedTokensServer must be embedded to have forward compatible implementations.
+type UnimplementedTokensServer struct {
+}
+
+func (UnimplementedTokensServer) GetGitlabTokenByAccountID(context.Context, *AccountId) (*GitlabToken, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGitlabTokenByAccountID not implemented")
+}
+func (UnimplementedTokensServer) mustEmbedUnimplementedTokensServer() {}
+
+// UnsafeTokensServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to TokensServer will
+// result in compilation errors.
+type UnsafeTokensServer interface {
+	mustEmbedUnimplementedTokensServer()
+}
+
+func RegisterTokensServer(s grpc.ServiceRegistrar, srv TokensServer) {
+	s.RegisterService(&Tokens_ServiceDesc, srv)
+}
+
+func _Tokens_GetGitlabTokenByAccountID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccountId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TokensServer).GetGitlabTokenByAccountID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Tokens/GetGitlabTokenByAccountID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TokensServer).GetGitlabTokenByAccountID(ctx, req.(*AccountId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Tokens_ServiceDesc is the grpc.ServiceDesc for Tokens service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var Tokens_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "users.Tokens",
+	HandlerType: (*TokensServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetGitlabTokenByAccountID",
+			Handler:    _Tokens_GetGitlabTokenByAccountID_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "users/accounts/accounts_v1.proto",
+}
