@@ -417,7 +417,7 @@ type Applications struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Applications string `protobuf:"bytes,1,opt,name=applications,proto3" json:"applications,omitempty"`
+	ApplicationId *applications.AppId `protobuf:"bytes,1,opt,name=application_id,json=applicationId,proto3" json:"application_id,omitempty"`
 }
 
 func (x *Applications) Reset() {
@@ -452,11 +452,11 @@ func (*Applications) Descriptor() ([]byte, []int) {
 	return file_users_rights_rights_v1_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *Applications) GetApplications() string {
+func (x *Applications) GetApplicationId() *applications.AppId {
 	if x != nil {
-		return x.Applications
+		return x.ApplicationId
 	}
-	return ""
+	return nil
 }
 
 type AvailableAppsListOptions struct {
@@ -556,10 +556,11 @@ var file_users_rights_rights_v1_proto_rawDesc = []byte{
 	0x4c, 0x69, 0x73, 0x74, 0x4f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12, 0x22, 0x0a, 0x06, 0x61,
 	0x70, 0x70, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x61, 0x70,
 	0x70, 0x73, 0x2e, 0x41, 0x70, 0x70, 0x49, 0x64, 0x52, 0x05, 0x61, 0x70, 0x70, 0x49, 0x64, 0x22,
-	0x32, 0x0a, 0x0c, 0x41, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12,
-	0x22, 0x0a, 0x0c, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x73, 0x22, 0x4b, 0x0a, 0x18, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65,
+	0x42, 0x0a, 0x0c, 0x41, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12,
+	0x32, 0x0a, 0x0e, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x5f, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x61, 0x70, 0x70, 0x73, 0x2e, 0x41,
+	0x70, 0x70, 0x49, 0x64, 0x52, 0x0d, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f,
+	0x6e, 0x49, 0x64, 0x22, 0x4b, 0x0a, 0x18, 0x41, 0x76, 0x61, 0x69, 0x6c, 0x61, 0x62, 0x6c, 0x65,
 	0x41, 0x70, 0x70, 0x73, 0x4c, 0x69, 0x73, 0x74, 0x4f, 0x70, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x12,
 	0x2f, 0x0a, 0x0a, 0x61, 0x63, 0x63, 0x6f, 0x75, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x10, 0x2e, 0x75, 0x73, 0x65, 0x72, 0x73, 0x2e, 0x41, 0x63, 0x63, 0x6f,
@@ -645,28 +646,29 @@ var file_users_rights_rights_v1_proto_depIdxs = []int32{
 	9,  // 3: users.AccessRightRequest.application_id:type_name -> apps.AppId
 	0,  // 4: users.AccessRightRequest.access_right:type_name -> users.AccessRights
 	9,  // 5: users.RightsListOptions.app_id:type_name -> apps.AppId
-	10, // 6: users.AvailableAppsListOptions.account_id:type_name -> users.AccountId
-	3,  // 7: users.Rights.Init:input_type -> users.AccessRuleWithoutId
-	3,  // 8: users.Rights.Create:input_type -> users.AccessRuleWithoutId
-	2,  // 9: users.Rights.Update:input_type -> users.AccessRuleIdAndRight
-	1,  // 10: users.Rights.Delete:input_type -> users.AccessRuleId
-	1,  // 11: users.Rights.Get:input_type -> users.AccessRuleId
-	6,  // 12: users.Rights.List:input_type -> users.RightsListOptions
-	8,  // 13: users.Rights.ListAvailableApps:input_type -> users.AvailableAppsListOptions
-	5,  // 14: users.Rights.CheckRight:input_type -> users.AccessRightRequest
-	4,  // 15: users.Rights.Init:output_type -> users.AccessRuleInfo
-	4,  // 16: users.Rights.Create:output_type -> users.AccessRuleInfo
-	2,  // 17: users.Rights.Update:output_type -> users.AccessRuleIdAndRight
-	11, // 18: users.Rights.Delete:output_type -> common.EmptyMessage
-	4,  // 19: users.Rights.Get:output_type -> users.AccessRuleInfo
-	4,  // 20: users.Rights.List:output_type -> users.AccessRuleInfo
-	7,  // 21: users.Rights.ListAvailableApps:output_type -> users.Applications
-	11, // 22: users.Rights.CheckRight:output_type -> common.EmptyMessage
-	15, // [15:23] is the sub-list for method output_type
-	7,  // [7:15] is the sub-list for method input_type
-	7,  // [7:7] is the sub-list for extension type_name
-	7,  // [7:7] is the sub-list for extension extendee
-	0,  // [0:7] is the sub-list for field type_name
+	9,  // 6: users.Applications.application_id:type_name -> apps.AppId
+	10, // 7: users.AvailableAppsListOptions.account_id:type_name -> users.AccountId
+	3,  // 8: users.Rights.Init:input_type -> users.AccessRuleWithoutId
+	3,  // 9: users.Rights.Create:input_type -> users.AccessRuleWithoutId
+	2,  // 10: users.Rights.Update:input_type -> users.AccessRuleIdAndRight
+	1,  // 11: users.Rights.Delete:input_type -> users.AccessRuleId
+	1,  // 12: users.Rights.Get:input_type -> users.AccessRuleId
+	6,  // 13: users.Rights.List:input_type -> users.RightsListOptions
+	8,  // 14: users.Rights.ListAvailableApps:input_type -> users.AvailableAppsListOptions
+	5,  // 15: users.Rights.CheckRight:input_type -> users.AccessRightRequest
+	4,  // 16: users.Rights.Init:output_type -> users.AccessRuleInfo
+	4,  // 17: users.Rights.Create:output_type -> users.AccessRuleInfo
+	2,  // 18: users.Rights.Update:output_type -> users.AccessRuleIdAndRight
+	11, // 19: users.Rights.Delete:output_type -> common.EmptyMessage
+	4,  // 20: users.Rights.Get:output_type -> users.AccessRuleInfo
+	4,  // 21: users.Rights.List:output_type -> users.AccessRuleInfo
+	7,  // 22: users.Rights.ListAvailableApps:output_type -> users.Applications
+	11, // 23: users.Rights.CheckRight:output_type -> common.EmptyMessage
+	16, // [16:24] is the sub-list for method output_type
+	8,  // [8:16] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_users_rights_rights_v1_proto_init() }
