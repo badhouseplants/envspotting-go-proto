@@ -33,6 +33,7 @@ type AccountsClient interface {
 	List(ctx context.Context, in *AccountsListOptions, opts ...grpc.CallOption) (Accounts_ListClient, error)
 	/// Add an app to the user app list
 	AddAppToUser(ctx context.Context, in *applications.AppId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
+	InitAddAppToUser(ctx context.Context, in *applications.AppId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	GetAppsFromUser(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountsApps, error)
 }
 
@@ -130,6 +131,15 @@ func (c *accountsClient) AddAppToUser(ctx context.Context, in *applications.AppI
 	return out, nil
 }
 
+func (c *accountsClient) InitAddAppToUser(ctx context.Context, in *applications.AppId, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
+	out := new(common.EmptyMessage)
+	err := c.cc.Invoke(ctx, "/users.Accounts/InitAddAppToUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *accountsClient) GetAppsFromUser(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountsApps, error) {
 	out := new(AccountsApps)
 	err := c.cc.Invoke(ctx, "/users.Accounts/GetAppsFromUser", in, out, opts...)
@@ -156,6 +166,7 @@ type AccountsServer interface {
 	List(*AccountsListOptions, Accounts_ListServer) error
 	/// Add an app to the user app list
 	AddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error)
+	InitAddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error)
 	GetAppsFromUser(context.Context, *AccountId) (*AccountsApps, error)
 	mustEmbedUnimplementedAccountsServer()
 }
@@ -184,6 +195,9 @@ func (UnimplementedAccountsServer) List(*AccountsListOptions, Accounts_ListServe
 }
 func (UnimplementedAccountsServer) AddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddAppToUser not implemented")
+}
+func (UnimplementedAccountsServer) InitAddAppToUser(context.Context, *applications.AppId) (*common.EmptyMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method InitAddAppToUser not implemented")
 }
 func (UnimplementedAccountsServer) GetAppsFromUser(context.Context, *AccountId) (*AccountsApps, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAppsFromUser not implemented")
@@ -330,6 +344,24 @@ func _Accounts_AddAppToUser_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Accounts_InitAddAppToUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(applications.AppId)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AccountsServer).InitAddAppToUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/users.Accounts/InitAddAppToUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AccountsServer).InitAddAppToUser(ctx, req.(*applications.AppId))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Accounts_GetAppsFromUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AccountId)
 	if err := dec(in); err != nil {
@@ -378,6 +410,10 @@ var Accounts_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddAppToUser",
 			Handler:    _Accounts_AddAppToUser_Handler,
+		},
+		{
+			MethodName: "InitAddAppToUser",
+			Handler:    _Accounts_InitAddAppToUser_Handler,
 		},
 		{
 			MethodName: "GetAppsFromUser",

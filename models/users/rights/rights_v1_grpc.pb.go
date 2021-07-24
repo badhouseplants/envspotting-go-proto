@@ -25,6 +25,7 @@ type RightsClient interface {
 	Delete(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	Get(ctx context.Context, in *AccessRuleId, opts ...grpc.CallOption) (*AccessRuleInfo, error)
 	List(ctx context.Context, in *RightsListOptions, opts ...grpc.CallOption) (Rights_ListClient, error)
+	ListAvailableApps(ctx context.Context, in *AvailableAppsListOptions, opts ...grpc.CallOption) (Rights_ListAvailableAppsClient, error)
 	CheckRight(ctx context.Context, in *AccessRightRequest, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 }
 
@@ -113,6 +114,38 @@ func (x *rightsListClient) Recv() (*AccessRuleInfo, error) {
 	return m, nil
 }
 
+func (c *rightsClient) ListAvailableApps(ctx context.Context, in *AvailableAppsListOptions, opts ...grpc.CallOption) (Rights_ListAvailableAppsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Rights_ServiceDesc.Streams[1], "/users.Rights/ListAvailableApps", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &rightsListAvailableAppsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Rights_ListAvailableAppsClient interface {
+	Recv() (*Applications, error)
+	grpc.ClientStream
+}
+
+type rightsListAvailableAppsClient struct {
+	grpc.ClientStream
+}
+
+func (x *rightsListAvailableAppsClient) Recv() (*Applications, error) {
+	m := new(Applications)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 func (c *rightsClient) CheckRight(ctx context.Context, in *AccessRightRequest, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
 	out := new(common.EmptyMessage)
 	err := c.cc.Invoke(ctx, "/users.Rights/CheckRight", in, out, opts...)
@@ -132,6 +165,7 @@ type RightsServer interface {
 	Delete(context.Context, *AccessRuleId) (*common.EmptyMessage, error)
 	Get(context.Context, *AccessRuleId) (*AccessRuleInfo, error)
 	List(*RightsListOptions, Rights_ListServer) error
+	ListAvailableApps(*AvailableAppsListOptions, Rights_ListAvailableAppsServer) error
 	CheckRight(context.Context, *AccessRightRequest) (*common.EmptyMessage, error)
 	mustEmbedUnimplementedRightsServer()
 }
@@ -157,6 +191,9 @@ func (UnimplementedRightsServer) Get(context.Context, *AccessRuleId) (*AccessRul
 }
 func (UnimplementedRightsServer) List(*RightsListOptions, Rights_ListServer) error {
 	return status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (UnimplementedRightsServer) ListAvailableApps(*AvailableAppsListOptions, Rights_ListAvailableAppsServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListAvailableApps not implemented")
 }
 func (UnimplementedRightsServer) CheckRight(context.Context, *AccessRightRequest) (*common.EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckRight not implemented")
@@ -285,6 +322,27 @@ func (x *rightsListServer) Send(m *AccessRuleInfo) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _Rights_ListAvailableApps_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(AvailableAppsListOptions)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(RightsServer).ListAvailableApps(m, &rightsListAvailableAppsServer{stream})
+}
+
+type Rights_ListAvailableAppsServer interface {
+	Send(*Applications) error
+	grpc.ServerStream
+}
+
+type rightsListAvailableAppsServer struct {
+	grpc.ServerStream
+}
+
+func (x *rightsListAvailableAppsServer) Send(m *Applications) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 func _Rights_CheckRight_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AccessRightRequest)
 	if err := dec(in); err != nil {
@@ -339,6 +397,11 @@ var Rights_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "List",
 			Handler:       _Rights_List_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListAvailableApps",
+			Handler:       _Rights_ListAvailableApps_Handler,
 			ServerStreams: true,
 		},
 	},
