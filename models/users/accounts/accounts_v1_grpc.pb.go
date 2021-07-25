@@ -435,7 +435,7 @@ var Accounts_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TokensClient interface {
 	// Use to get gitlab token
-	GetGitlabTokenByAccountID(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*GitlabToken, error)
+	GetGitlabTokenByAccountID(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountGitlabToken, error)
 }
 
 type tokensClient struct {
@@ -446,8 +446,8 @@ func NewTokensClient(cc grpc.ClientConnInterface) TokensClient {
 	return &tokensClient{cc}
 }
 
-func (c *tokensClient) GetGitlabTokenByAccountID(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*GitlabToken, error) {
-	out := new(GitlabToken)
+func (c *tokensClient) GetGitlabTokenByAccountID(ctx context.Context, in *AccountId, opts ...grpc.CallOption) (*AccountGitlabToken, error) {
+	out := new(AccountGitlabToken)
 	err := c.cc.Invoke(ctx, "/users.Tokens/GetGitlabTokenByAccountID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -460,7 +460,7 @@ func (c *tokensClient) GetGitlabTokenByAccountID(ctx context.Context, in *Accoun
 // for forward compatibility
 type TokensServer interface {
 	// Use to get gitlab token
-	GetGitlabTokenByAccountID(context.Context, *AccountId) (*GitlabToken, error)
+	GetGitlabTokenByAccountID(context.Context, *AccountId) (*AccountGitlabToken, error)
 	mustEmbedUnimplementedTokensServer()
 }
 
@@ -468,7 +468,7 @@ type TokensServer interface {
 type UnimplementedTokensServer struct {
 }
 
-func (UnimplementedTokensServer) GetGitlabTokenByAccountID(context.Context, *AccountId) (*GitlabToken, error) {
+func (UnimplementedTokensServer) GetGitlabTokenByAccountID(context.Context, *AccountId) (*AccountGitlabToken, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGitlabTokenByAccountID not implemented")
 }
 func (UnimplementedTokensServer) mustEmbedUnimplementedTokensServer() {}
