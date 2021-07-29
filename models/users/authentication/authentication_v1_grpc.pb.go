@@ -4,7 +4,6 @@ package authentication
 
 import (
 	context "context"
-	common "github.com/badhouseplants/envspotting-go-proto/models/common"
 	accounts "github.com/badhouseplants/envspotting-go-proto/models/users/accounts"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
@@ -21,9 +20,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthenticationClient interface {
 	/// Use to sign in
-	SignIn(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*common.EmptyMessage, error)
+	SignIn(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*accounts.AccountId, error)
 	/// Use to sign up
-	SignUp(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*common.EmptyMessage, error)
+	SignUp(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*accounts.AccountId, error)
 }
 
 type authenticationClient struct {
@@ -34,8 +33,8 @@ func NewAuthenticationClient(cc grpc.ClientConnInterface) AuthenticationClient {
 	return &authenticationClient{cc}
 }
 
-func (c *authenticationClient) SignIn(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
-	out := new(common.EmptyMessage)
+func (c *authenticationClient) SignIn(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*accounts.AccountId, error) {
+	out := new(accounts.AccountId)
 	err := c.cc.Invoke(ctx, "/users.Authentication/SignIn", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -43,8 +42,8 @@ func (c *authenticationClient) SignIn(ctx context.Context, in *accounts.AccountC
 	return out, nil
 }
 
-func (c *authenticationClient) SignUp(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
-	out := new(common.EmptyMessage)
+func (c *authenticationClient) SignUp(ctx context.Context, in *accounts.AccountCreds, opts ...grpc.CallOption) (*accounts.AccountId, error) {
+	out := new(accounts.AccountId)
 	err := c.cc.Invoke(ctx, "/users.Authentication/SignUp", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -57,9 +56,9 @@ func (c *authenticationClient) SignUp(ctx context.Context, in *accounts.AccountC
 // for forward compatibility
 type AuthenticationServer interface {
 	/// Use to sign in
-	SignIn(context.Context, *accounts.AccountCreds) (*common.EmptyMessage, error)
+	SignIn(context.Context, *accounts.AccountCreds) (*accounts.AccountId, error)
 	/// Use to sign up
-	SignUp(context.Context, *accounts.AccountCreds) (*common.EmptyMessage, error)
+	SignUp(context.Context, *accounts.AccountCreds) (*accounts.AccountId, error)
 	mustEmbedUnimplementedAuthenticationServer()
 }
 
@@ -67,10 +66,10 @@ type AuthenticationServer interface {
 type UnimplementedAuthenticationServer struct {
 }
 
-func (UnimplementedAuthenticationServer) SignIn(context.Context, *accounts.AccountCreds) (*common.EmptyMessage, error) {
+func (UnimplementedAuthenticationServer) SignIn(context.Context, *accounts.AccountCreds) (*accounts.AccountId, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignIn not implemented")
 }
-func (UnimplementedAuthenticationServer) SignUp(context.Context, *accounts.AccountCreds) (*common.EmptyMessage, error) {
+func (UnimplementedAuthenticationServer) SignUp(context.Context, *accounts.AccountCreds) (*accounts.AccountId, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SignUp not implemented")
 }
 func (UnimplementedAuthenticationServer) mustEmbedUnimplementedAuthenticationServer() {}
