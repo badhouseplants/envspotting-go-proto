@@ -21,7 +21,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthorizationClient interface {
 	/// Use to refresh access token
-	RefreshToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error)
+	RefreshToken(ctx context.Context, in *accounts.AccountId, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	/// Use To validate jwt token
 	ValidateToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error)
 	/// Use to parse user ID from token
@@ -36,7 +36,7 @@ func NewAuthorizationClient(cc grpc.ClientConnInterface) AuthorizationClient {
 	return &authorizationClient{cc}
 }
 
-func (c *authorizationClient) RefreshToken(ctx context.Context, in *common.EmptyMessage, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
+func (c *authorizationClient) RefreshToken(ctx context.Context, in *accounts.AccountId, opts ...grpc.CallOption) (*common.EmptyMessage, error) {
 	out := new(common.EmptyMessage)
 	err := c.cc.Invoke(ctx, "/users.Authorization/RefreshToken", in, out, opts...)
 	if err != nil {
@@ -68,7 +68,7 @@ func (c *authorizationClient) ParseIdFromToken(ctx context.Context, in *common.E
 // for forward compatibility
 type AuthorizationServer interface {
 	/// Use to refresh access token
-	RefreshToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error)
+	RefreshToken(context.Context, *accounts.AccountId) (*common.EmptyMessage, error)
 	/// Use To validate jwt token
 	ValidateToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error)
 	/// Use to parse user ID from token
@@ -80,7 +80,7 @@ type AuthorizationServer interface {
 type UnimplementedAuthorizationServer struct {
 }
 
-func (UnimplementedAuthorizationServer) RefreshToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error) {
+func (UnimplementedAuthorizationServer) RefreshToken(context.Context, *accounts.AccountId) (*common.EmptyMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
 }
 func (UnimplementedAuthorizationServer) ValidateToken(context.Context, *common.EmptyMessage) (*common.EmptyMessage, error) {
@@ -103,7 +103,7 @@ func RegisterAuthorizationServer(s grpc.ServiceRegistrar, srv AuthorizationServe
 }
 
 func _Authorization_RefreshToken_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(common.EmptyMessage)
+	in := new(accounts.AccountId)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func _Authorization_RefreshToken_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: "/users.Authorization/RefreshToken",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthorizationServer).RefreshToken(ctx, req.(*common.EmptyMessage))
+		return srv.(AuthorizationServer).RefreshToken(ctx, req.(*accounts.AccountId))
 	}
 	return interceptor(ctx, in, info, handler)
 }
